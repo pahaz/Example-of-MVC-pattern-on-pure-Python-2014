@@ -66,15 +66,6 @@ class Router(object):
         path = environ['PATH_INFO']
         query_dict = parse_qs(environ['QUERY_STRING'])
 
-        # try:
-        #     request_body_size = int(environ.get('CONTENT_LENGTH', 0))
-        # except ValueError:
-        #     request_body_size = 0
-        #
-        # request_body = environ['wsgi.input'].read(request_body_size)
-        # body_query_dict = parse_qs(request_body)
-        # print(body_query_dict)
-
         if path in self._paths:
             res = self._paths[path](query_dict)
         else:
