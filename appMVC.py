@@ -164,7 +164,7 @@ rout.register('/text/add', controller.add)
 
 def application(environ, start_response):
     http_status_code, response_body = rout.route(environ, start_response)
-    response_body += '<br><br> The request ENV: {0}'.format(repr(environ))
+    # response_body += '<br><br> The request ENV: {0}'.format(repr(environ))
     http_status_code_and_msg = http_status(http_status_code)
     response_headers = [('Content-Type', 'text/html')]
 
