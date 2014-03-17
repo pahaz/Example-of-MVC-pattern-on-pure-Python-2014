@@ -8,7 +8,13 @@
 
 # MVC v2 for lovers of esthetics
 
-![Screen Shot](/path/to/img.jpg "MVC pure python example")
+![Screenshot](screenshot.png "MVC pure python example - html view")
+
+## Coupling
+
+![Components coupling](coupling.jpg "MVC on pure python example - components coupling")
+
+## How to use
 
    $> python serverMVCv2.py  # Run server
    
