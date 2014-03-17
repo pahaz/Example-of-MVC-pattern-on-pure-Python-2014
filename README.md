@@ -1,8 +1,8 @@
-# Run simple WSGI server example
+## Run simple WSGI server example
 
    >python server.py
 
-# Run MVC example
+## Run MVC example
 
    >python serverMVC.py
 
