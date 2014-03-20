@@ -90,7 +90,13 @@ class TextController(object):
     def index(self, request_get_data):
         title = take_one_or_None(request_get_data, 'title')
         content = self.model.get_content_by(title)
+
+        if not content:
+            title = ''
+            content = 'Content not exist!'
+
         titles = self.model.get_all_titles()
+
         context = {
             'titles': titles,
             'current_content': content,
