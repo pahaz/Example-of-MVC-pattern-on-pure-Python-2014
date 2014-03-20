@@ -3,7 +3,7 @@
 # course. Institute Mathematics and Computer Science at Ural Federal University
 # in 2014.
 #
-# By Pahaz Blivon.
+# By Pahaz Blinov.
 # ===========================
 
 __author__ = "pahaz"
