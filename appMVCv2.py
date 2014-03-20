@@ -252,7 +252,7 @@ def application(environ, start_response):
     request_path = environ["PATH_INFO"]
     request_get_data = parse_http_get_data(environ)
 
-    # TODO: You can add this interesting think to Router
+    # TODO: You can add this interesting line
     # print(parse_http_post_data(environ))
 
     http_status_code, response_body = router.route(request_path, request_get_data)
