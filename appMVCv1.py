@@ -140,7 +140,7 @@ class TextIndexView(object):
         <form method="GET" action="/text/add">
             <input type=text name=title placeholder="Text title" /> <br>
             <textarea name=content placeholder="Text content!" ></textarea> <br>
-            <input type=submit value=write/rewrite />
+            <input type=submit value=write />
         </form>
         <h1>{current_title}</h1>
         <div>{current_content}</div>
@@ -178,7 +178,7 @@ def application(environ, start_response):
     else:
         processor = defaut_prcessor
 
-    http_status_code, response_body = processor(environ, start_response)
+    http_status_code, response_body = processor(request_get_data)
     # response_body += '<br><br> The request ENV: {0}'.format(repr(environ))
     http_status_code_and_msg = http_status(http_status_code)
     response_headers = [('Content-Type', 'text/html')]

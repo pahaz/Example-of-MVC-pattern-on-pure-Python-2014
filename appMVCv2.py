@@ -99,12 +99,20 @@ class TextManager(object):
         ]
 
     def create(self, title, content):
+        if title in self._db:
+            return False
+
         self._db[title] = content
         self._db.sync()
+        return True
 
     def delete(self, title):
+        if title not in self._db:
+            return False
+
         del self._db[title]
         self._db.sync()
+        return True
 
 
 # ===========================
@@ -121,12 +129,10 @@ class Router(object):
     def __init__(self):
         self._paths = {}
 
-    def route(self, environ, start_response):
-        path = environ["PATH_INFO"]
-        request_get_data = parse_http_get_data(environ)
+    def route(self, request_path, request_get_data):
 
-        if path in self._paths:
-            res = self._paths[path](request_get_data)
+        if request_path in self._paths:
+            res = self._paths[request_path](request_get_data)
         else:
             res = self.default_response(request_get_data)
 
@@ -140,34 +146,42 @@ class Router(object):
 
 
 class TextController(object):
-    def __init__(self, view, manager):
-        self.view = view
-        self.text_manager = manager
+    def __init__(self, index_view, add_view, manager):
+        self.index_view = index_view
+        self.add_view = add_view
+        self.model_manager = manager
 
     def index(self, request_get_data):
         title = take_one_or_None(request_get_data, "title")
-        current_text = self.text_manager.get_by_title(title)
+        current_text = self.model_manager.get_by_title(title)
 
-        all_texts = self.text_manager.get_all()
+        all_texts = self.model_manager.get_all()
 
         context = {
             "all": all_texts,
             "current": current_text,
         }
 
-        return 200, self.view.render(context)
+        return 200, self.index_view.render(context)
 
     def add(self, request_get_data):
-        title = take_one_or_None(request_get_data, "title")
-        content = take_one_or_None(request_get_data, "content")
+        title = take_one_or_None(request_get_data, 'title')
+        content = take_one_or_None(request_get_data, 'content')
 
-        self.text_manager.create(title, content)
+        if not title or not content:
+            error = "Need fill the form fields."
+        else:
+            error = None
+            is_created = self.model_manager.create(title, content)
+            if not is_created:
+                error = "Title already exist."
 
         context = {
-            "url": "/text"
+            'title': title,
+            'content': content,
+            'error': error,
         }
-
-        return 200, RedirectView.render(context)
+        return 200, self.add_view.render(context)
 
 
 # ===========================
@@ -176,18 +190,18 @@ class TextController(object):
 #
 # ===========================
 
-class TextView(object):
+class TextIndexView(object):
     @staticmethod
     def render(context):
         context["titles"] = "\n".join([
-            "<li>{0.title}</li>".format(text) for text in context["all"]
+            "<li>{text.title}</li>".format(text=text) for text in context["all"]
         ])
 
         if context["current"]:
             context["content"] = """
-            <h1>{0.title}</h1>
-            {0.content}
-            """.format(context["current"])
+            <h1>{current.title}</h1>
+            {current.content}
+            """.format(current=context["current"])
         else:
             context["content"] = 'What do you want read?'
 
@@ -210,8 +224,7 @@ class TextView(object):
 class RedirectView(object):
     @staticmethod
     def render(context):
-        return '<meta http-equiv="refresh" content="0; url={url}" />' \
-            .format(**context)
+        return '<meta http-equiv="refresh" content="0; url=/text" />'
 
 
 # ===========================
@@ -220,11 +233,10 @@ class RedirectView(object):
 #
 # ===========================
 
-router = Router()
 text_manager = TextManager()
-text_view = TextView()
-controller = TextController(text_view, text_manager)
+controller = TextController(TextIndexView, RedirectView, text_manager)
 
+router = Router()
 router.register("/", lambda x: (200, "Index HI!"))
 router.register("/text", controller.index)
 router.register("/text/add", controller.add)
@@ -237,16 +249,19 @@ router.register("/text/add", controller.add)
 # ===========================
 
 def application(environ, start_response):
-    http_status_code, response_body = router.route(environ, start_response)
+    request_path = environ["PATH_INFO"]
+    request_get_data = parse_http_get_data(environ)
+
+    # TODO: You can add this interesting think to Router
+    # print(parse_http_post_data(environ))
+
+    http_status_code, response_body = router.route(request_path, request_get_data)
 
     if DEBUG:
         response_body += "<br><br> The request ENV: {0}".format(repr(environ))
 
     response_status = http_status(http_status_code)
     response_headers = [("Content-Type", "text/html")]
-
-    # TODO: You can add this interesting think to Router
-    # print(parse_http_post_data(environ))
 
     start_response(response_status, response_headers)
     return [response_body]  # it could be any iterable.
