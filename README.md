@@ -14,6 +14,12 @@
 
 ![Components coupling](https://raw.github.com/pahaz/Example-of-MVC-pattern-on-pure-Python/master/coupling.png "MVC on pure python example - components coupling")
 
+Если компонент A сильно связан с B, то это можно трактовать следующим образом: при изменении объекта B, придется изменить код объекта A.
+
+Естественно, чем меньше связность компонентов - тем проще вносить изменения в проект.
+
+`Low Coupling`.
+
 ## How to use
 
     > python serverMVCv2.py  # Run server
